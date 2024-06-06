@@ -22,17 +22,14 @@ const (
 type Rser interface {
 	// Cache
 	Cache(ctx context.Context, key string, valueFn func() (any, time.Duration, error), reflect any) error
-
 	// InjectHotCache
 	InjectHotCache(ctx context.Context, key string, valueFn func() (any, time.Duration, error), reflect any) error
 	// GetHotCache
 	GetHotCache(ctx context.Context, key string, valuePtr any) error
-
 	// Set
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	// Get
 	Get(ctx context.Context, key string) (any, error)
-
 	// AddHook
 	AddHook(hook redis.Hook)
 	// Close

@@ -1,10 +1,10 @@
-package main
+package rstool
 
 import (
 	"context"
 	"encoding/json"
 	"log"
-	"rstool/rstool"
+	"testing"
 	"time"
 )
 
@@ -14,8 +14,8 @@ type Data struct {
 	Hobby []string `json:"hobby"`
 }
 
-func main() {
-	rs, err := rstool.NewRstool(&rstool.Cfg{
+func TestCache(t *testing.T) {
+	rs, err := NewRstool(&Cfg{
 		Network:    "tcp",
 		Addr:       "192.168.233.202:6379",
 		ClientName: "yother-redis",

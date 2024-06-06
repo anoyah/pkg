@@ -1,6 +1,6 @@
-module rstool
+module github.com/yother233/pkg
 
-go 1.22.3
+go 1.22.0
 
 require (
 	github.com/redis/go-redis/v9 v9.5.2
