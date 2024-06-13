@@ -42,6 +42,23 @@ func TestCache(t *testing.T) {
 	}, &d); err != nil {
 		panic(err)
 	}
+	if err := rs.InjectHotCache(context.Background(), "test", func() (any, time.Duration, error) {
+		return "123123123", 20 * time.Minute, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := rs.InjectHotCache(context.Background(), "test1", func() (any, time.Duration, error) {
+		return "13sfsfasf", 20 * time.Minute, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := rs.InjectHotCache(context.Background(), "test2", func() (any, time.Duration, error) {
+		return "13sfsfasf", 20 * time.Minute, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
 	// encoding.BinaryMarshaler
 	log.Printf("%+v", d)
+	<-make(chan struct{})
 }
