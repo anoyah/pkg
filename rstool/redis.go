@@ -121,9 +121,10 @@ func NewRstool(cfg *Cfg, opts ...option) (Rser, error) {
 	for _, opt := range opts {
 		opt(rstool)
 	}
-	if rstool.l == nil {
-		rstool.l = &mutex.DefaultLock{}
-	}
+	// TODO needs hand set lock.
+	// if rstool.l == nil {
+	// 	rstool.l = &mutex.DefaultLock{}
+	// }
 
 	if cfg.PrefixKey != "" {
 		rstool.ctx = context.WithValue(rstool.ctx, PrefixKey{}, cfg.PrefixKey)
@@ -191,13 +192,31 @@ func (r *Rstool) cache(ctx context.Context, key string, valueFn RsDataFn) (any, 
 		return nil, err
 	}
 
-	if err := r.singleSet(ctx, key, value, expiration); err != nil {
-		return nil, err
+	if r.l == nil {
+		if err := r.singleSet(ctx, key, value, expiration); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := r.distributedSet(ctx, key, value, expiration); err != nil {
+			return nil, err
+		}
 	}
 	return value, nil
 }
 
+// to set with single that using flightSingle of standard lib.
 func (r *Rstool) singleSet(ctx context.Context, key string, value any, expiration time.Duration) error {
+	_, err, _ := r.single.Do(key, func() (any, error) {
+		if err := r.client.Set(ctx, joinPrefix(r.ctx, key), value, expiration).Err(); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+	return err
+}
+
+// to set with distributed service
+func (r *Rstool) distributedSet(ctx context.Context, key string, value any, expiration time.Duration) error {
 	if err := r.l.Lock(key); err != nil {
 		return err
 	}

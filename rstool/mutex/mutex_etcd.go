@@ -65,11 +65,6 @@ func (e *EtcdMutex) Lock(key string) error {
 	return nil
 }
 
-// TryUnlock implements Locker.
-func (e *EtcdMutex) TryUnlock(key string) (bool, error) {
-	panic("unimplemented")
-}
-
 // Unlock implements Locker.
 func (e *EtcdMutex) Unlock(key string) error {
 	ctx, cancel := context.WithTimeout(e.ctx, e.timeout)

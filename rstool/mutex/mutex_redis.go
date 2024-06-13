@@ -50,11 +50,6 @@ func (r *RedisMutex) Lock(key string) error {
 	panic("unimplemented")
 }
 
-// TryUnlock implements Locker.
-func (r *RedisMutex) TryUnlock(key string) (bool, error) {
-	panic("unimplemented")
-}
-
 // Unlock implements Locker.
 func (r *RedisMutex) Unlock(key string) error {
 	panic("unimplemented")

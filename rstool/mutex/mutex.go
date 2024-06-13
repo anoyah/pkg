@@ -12,7 +12,6 @@ var (
 type Locker interface {
 	Lock(key string) error
 	Unlock(key string) error
-	TryUnlock(key string) (bool, error)
 }
 
 type DefaultLock struct {
@@ -23,11 +22,6 @@ type DefaultLock struct {
 func (d *DefaultLock) Lock(_ string) error {
 	d.mu.Lock()
 	return nil
-}
-
-// TryUnlock implements Locker.
-func (d *DefaultLock) TryUnlock(key string) (bool, error) {
-	return d.mu.TryLock(), nil
 }
 
 // Unlock implements Locker.
