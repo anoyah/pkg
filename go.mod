@@ -1,4 +1,4 @@
-module github.com/yother233/pkg
+module github.com/anoyah/pkg
 
 go 1.22.0
 
