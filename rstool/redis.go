@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/anoyah/pkg/rstool/mutex"
 	"github.com/redis/go-redis/v9"
-	"github.com/yother233/pkg/rstool/mutex"
 	"golang.org/x/sync/singleflight"
 )
 
