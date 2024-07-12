@@ -3,7 +3,6 @@ package rstool
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -11,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/anoyah/pkg/rstool/marshaler"
 	"github.com/anoyah/pkg/rstool/mutex"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/sync/singleflight"
@@ -34,7 +34,9 @@ type Rser interface {
 	// Close
 	Close() error
 	// Cache
-	Cache(ctx context.Context, key string, valueFn RsDataFn, reflect any) error
+	Cache(ctx context.Context, key string, valueFn RsDataFn, reflect any, ops ...option) error
+	// CacheWithRaw
+	CacheRaw(ctx context.Context, key string, valueFn RsDataFn) ([]byte, error)
 	// AddHook
 	AddHook(hook redis.Hook)
 	// InjectHotCache
@@ -84,6 +86,18 @@ func WithDebug() option {
 	}
 }
 
+func WithMarshal(msler marshaler.Marshaler) option {
+	return func(r *Rstool) {
+		r.msler = msler
+	}
+}
+
+func WithProtoMarshal() option {
+	return func(r *Rstool) {
+
+	}
+}
+
 // Rstool rstool
 type Rstool struct {
 	// log logging
@@ -108,6 +122,8 @@ type Rstool struct {
 	chRefreshCache chan struct{}
 	// debug develop mode for debug
 	debug bool
+	// msler implemented marshaler
+	msler marshaler.Marshaler
 }
 
 // NewRstool create redis tools with config
@@ -149,6 +165,11 @@ func NewRstool(cfg *Cfg, opts ...option) (Rser, error) {
 	// register refresh service
 	// go rstool.regRefreshEvent()
 
+	// set default marshaler with json
+	if rstool.msler == nil {
+		rstool.msler = &marshaler.DefaultMarshaler{}
+	}
+
 	return rstool, nil
 }
 
@@ -157,10 +178,20 @@ func (r *Rstool) GetInstance() *redis.Client {
 	return r.client
 }
 
+// CacheRaw implements Rser.
+func (r *Rstool) CacheRaw(ctx context.Context, key string, valueFn RsDataFn) ([]byte, error) {
+	panic("unimplemented")
+}
+
 // Cache implements Rser.
-func (r *Rstool) Cache(ctx context.Context, key string, valueFn RsDataFn, reflectPtr any) error {
+// Parma: opts like WithMarshaler
+func (r *Rstool) Cache(ctx context.Context, key string, valueFn RsDataFn, reflectPtr any, opts ...option) error {
 	if reflect.TypeOf(reflectPtr).Kind() != reflect.Pointer {
 		return ErrNotPtr
+	}
+
+	for _, opt := range opts {
+		opt(r)
 	}
 
 	var valueByte []byte
@@ -175,15 +206,15 @@ func (r *Rstool) Cache(ctx context.Context, key string, valueFn RsDataFn, reflec
 		if err != nil {
 			return err
 		}
-		switch value.(type) {
+		switch value := value.(type) {
 		case []byte:
-			valueByte = value.([]byte)
+			valueByte = value
 		case string:
-			valueByte = []byte(value.(string))
+			valueByte = []byte(value)
 		}
 	}
 
-	return json.Unmarshal(valueByte, reflectPtr)
+	return r.msler.Unmarshal(valueByte, reflectPtr)
 }
 
 func (r *Rstool) cache(ctx context.Context, key string, valueFn RsDataFn) (any, error) {
@@ -191,13 +222,17 @@ func (r *Rstool) cache(ctx context.Context, key string, valueFn RsDataFn) (any, 
 	if err != nil {
 		return nil, err
 	}
+	content, err := r.msler.Marshal(value)
+	if err != nil {
+		return nil, err
+	}
 
 	if r.l == nil {
-		if err := r.singleSet(ctx, key, value, expiration); err != nil {
+		if err := r.singleSet(ctx, key, content, expiration); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := r.distributedSet(ctx, key, value, expiration); err != nil {
+		if err := r.distributedSet(ctx, key, content, expiration); err != nil {
 			return nil, err
 		}
 	}
