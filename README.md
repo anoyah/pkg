@@ -22,11 +22,3 @@ package for golang of common business
 > redis tools implements for common business, maybe more like as snippet for the project.
 
 ### 1. Cache
-
-
-
-### 2. Hot Data
-
-## 2. EntGo
-
-## 3. Gorm
