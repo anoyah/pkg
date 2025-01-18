@@ -1,4 +1,4 @@
-package rstool
+package redis
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anoyah/pkg/rstool/marshaler"
-	"github.com/anoyah/pkg/rstool/mutex"
+	"github.com/anoyah/pkgs/redis/marshaler"
+	"github.com/anoyah/pkgs/redis/mutex"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/sync/singleflight"
 )
@@ -23,6 +23,7 @@ var (
 	ErrNotPtr = errors.New("reflectPtr need be a pointer")
 )
 
+// RsDataFn a function that returns data and expiration time
 type RsDataFn func() (any, time.Duration, error)
 
 // Rser interface for Rstool
@@ -358,7 +359,7 @@ func (r *Rstool) listenRs() {
 	// }
 }
 
-func (r *Rstool) getAllExpiredAt(ctx context.Context) error {
+func (r *Rstool) getAllExpiredAt(_ context.Context) error {
 	// for k, v := range r.mapRsDataFn {
 	// 	expired, err := r.expiredAt(ctx, k)
 	// 	if err != nil {

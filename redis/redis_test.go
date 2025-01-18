@@ -1,4 +1,4 @@
-package rstool
+package redis
 
 import (
 	"context"

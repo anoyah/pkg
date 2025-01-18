@@ -1,4 +1,4 @@
-module github.com/anoyah/pkg
+module github.com/anoyah/pkgs
 
 go 1.22.0
 
