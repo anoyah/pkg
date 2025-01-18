@@ -6,8 +6,8 @@ package for golang of common business
 ├── README.md # ...
 ├── go.mod # ...
 ├── go.sum # ...
-├── pkg.go # entry file
-└── rstool # redis tool
+├── pkgs.go # entry file
+└── redis # redis tool
     ├── log.go # custom log 
     ├── mutex # mutex module
     │   ├── mutex.go # default mutex
@@ -18,7 +18,7 @@ package for golang of common business
     └── redis_test.go # test file for redis.go
 ```
 
-## 1. Rstool
+## 1. Redis
 > redis tools implements for common business, maybe more like as snippet for the project.
 
 ### 1. Cache
