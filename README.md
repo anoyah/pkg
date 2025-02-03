@@ -1,4 +1,9 @@
-package for golang of common business
+**package for golang of common business**
+
+## Usage
+```shell
+go get -u github.com/anoyah/pkgs@v0.0.2
+```
 
 **Package Structure**
 ```shell
@@ -20,5 +25,3 @@ package for golang of common business
 
 ## 1. Redis
 > redis tools implements for common business, maybe more like as snippet for the project.
-
-### 1. Cache
