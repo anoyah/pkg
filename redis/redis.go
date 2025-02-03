@@ -294,7 +294,7 @@ func (r *Rstool) Set(ctx context.Context, key string, value interface{}, expirat
 }
 
 func (r *Rstool) set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
-	return r.client.Set(ctx, joinPrefix(ctx, key), value, expiration).Err()
+	return r.client.Set(ctx, joinPrefix(r.ctx, key), value, expiration).Err()
 }
 
 // InjectHotCache implements Rser.
